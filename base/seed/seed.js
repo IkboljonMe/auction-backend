@@ -1,10 +1,10 @@
-import express from 'express';
-import Product from '../models/productModel.js';
-import User from '../models/userModel.js';
+import express from "express";
+import Product from "../models/productModel.js";
+import User from "../models/userModel.js";
 
-const seedRouter = express.Router();
+const seed = express.Router();
 
-seedRouter.get('/', async (req, res) => {
+seed.get("/", async (req, res) => {
   // removing all previous records in products model
   await Product.deleteMany({});
   const createdProducts = await Product.insertMany(data.products);
@@ -14,4 +14,4 @@ seedRouter.get('/', async (req, res) => {
   res.send({ createdProducts, createdUsers }); // sending new products to the frontend
 });
 
-export default seedRouter;
+export default seed;

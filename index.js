@@ -8,10 +8,12 @@ import path from "path";
 
 import seed from "./base/seed/seed.js";
 import Auction from "./base/models/auctionModel.js";
-import IndexRouter from "./base/routes/index.js";
 import database from "./base/database/database.js";
 import serverError from "./base/error/serverError.js";
 import createSocketServer from "./base/socket/socket.js";
+import uploadRouter from "./base/routes/uploadRoutes.js";
+import userRouter from "./base/routes/userRoutes.js";
+import auctionRouter from "./base/routes/auctionRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -21,7 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/api/seed", seed);
 database();
-app.use("/api", IndexRouter);
+app.use("/api/upload", uploadRouter);
+app.use("/api/users", userRouter);
+app.use("/api/auctions", auctionRouter);
 app.use(serverError);
 
 const port = process.env.PORT || 5000;

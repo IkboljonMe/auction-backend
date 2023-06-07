@@ -8,7 +8,6 @@ import path from "path";
 
 import seedRouter from "./base/routes/seedRoutes.js";
 import userRouter from "./base/routes/userRoutes.js";
-import orderRouter from "./base/routes/orderRoutes.js";
 import uploadRouter from "./base/routes/uploadRoutes.js";
 import auctionRouter from "./base/routes/auctionRoutes.js";
 import Auction from "./base/models/auctionModel.js";
@@ -34,7 +33,6 @@ mongoose
 
 app.use("/api/upload", uploadRouter);
 app.use("/api/users", userRouter);
-app.use("/api/orders", orderRouter);
 app.use("/api/auctions", auctionRouter);
 
 app.use((err, req, res, next) => {

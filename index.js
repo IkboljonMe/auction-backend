@@ -1,18 +1,17 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import { Server } from 'socket.io';
-import http from 'http';
-import cors from 'cors';
-import path from 'path';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import { Server } from "socket.io";
+import http from "http";
+import cors from "cors";
+import path from "path";
 
-import seedRouter from './routes/seedRoutes.js';
-import productRouter from './routes/productRoutes.js';
-import userRouter from './routes/userRoutes.js';
-import orderRouter from './routes/orderRoutes.js';
-import uploadRouter from './routes/uploadRoutes.js';
-import auctionRouter from './routes/auctionRoutes.js';
-import Auction from './models/auctionModel.js';
+import seedRouter from "./base/routes/seedRoutes.js";
+import userRouter from "./base/routes/userRoutes.js";
+import orderRouter from "./base/routes/orderRoutes.js";
+import uploadRouter from "./base/routes/uploadRoutes.js";
+import auctionRouter from "./base/routes/auctionRoutes.js";
+import Auction from "./base/models/auctionModel.js";
 
 dotenv.config();
 
@@ -22,28 +21,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// implementing api for paypal
-app.get('/api/keys/paypal', (req, res) => {
-  res.send(process.env.PAYPAL_CLIENT_ID || 'sandbox');
-});
-
-app.use('/api/seed', seedRouter);
+app.use("/api/seed", seedRouter);
 
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('[DB] Connection Success');
+    console.log("[DB] Connection Success");
   })
   .catch((err) => {
     console.log(err.message);
   });
 
-app.use('/api/upload', uploadRouter);
-// returns list of products for this api
-app.use('/api/products', productRouter);
-app.use('/api/users', userRouter);
-app.use('/api/orders', orderRouter);
-app.use('/api/auctions', auctionRouter);
+app.use("/api/upload", uploadRouter);
+app.use("/api/users", userRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/auctions", auctionRouter);
 
 app.use((err, req, res, next) => {
   res.status(500).send({ message: err.message });
@@ -55,43 +47,43 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [process.env.API_URI, 'http://localhost:3000'],
+    origin: [process.env.API_URI, "http://localhost:3000"],
   },
 });
 
-io.on('connection', (socket) => {
-  socket.on('joinAuction', async (auctionId) => {
+io.on("connection", (socket) => {
+  socket.on("joinAuction", async (auctionId) => {
     try {
       const auction = await Auction.findById(auctionId);
 
       if (!auction) {
         console.log(`[Socket] Auction not found ${auctionId}`);
-        socket.emit('auctionError', { message: 'Auction not found' });
+        socket.emit("auctionError", { message: "Auction not found" });
       } else {
         console.log(`[Socket] Joining auction ${auctionId}`);
         socket.join(auctionId);
-        socket.emit('auctionData', auction);
+        socket.emit("auctionData", auction);
       }
     } catch (error) {
       console.log(
         `[Socket] Error joining auction ${auctionId}: ${error.message}`
       );
-      socket.emit('auctionError', { message: 'Server Error' });
+      socket.emit("auctionError", { message: "Server Error" });
     }
   });
 
-  socket.on('leaveAuction', (auctionId) => {
+  socket.on("leaveAuction", (auctionId) => {
     console.log(`[Socket] Leaving auction ${auctionId}`);
     socket.leave(auctionId);
   });
 
-  socket.on('placeBid', async ({ auctionId, bidder, bidAmount }) => {
+  socket.on("placeBid", async ({ auctionId, bidder, bidAmount }) => {
     try {
       const auction = await Auction.findById(auctionId);
 
       if (!auction) {
         console.log(`[Socket] Auction not found ${auctionId}`);
-        socket.emit('auctionError', { message: 'Auction not found' });
+        socket.emit("auctionError", { message: "Auction not found" });
         return;
       }
 
@@ -107,17 +99,17 @@ io.on('connection', (socket) => {
         return;
       }
 
-      auction.bids.push({ bidder: 'Anonymous', bidAmount: bidAmount });
+      auction.bids.push({ bidder: "Anonymous", bidAmount: bidAmount });
       auction.currentBid = bidAmount;
 
       const updatedAuction = await auction.save();
-      io.to(auctionId).emit('bidUpdated', updatedAuction);
+      io.to(auctionId).emit("bidUpdated", updatedAuction);
     } catch (error) {
       console.error(error);
     }
   });
 
-  socket.on('disconnect', () => {});
+  socket.on("disconnect", () => {});
 });
 
 server.listen(port, () => {

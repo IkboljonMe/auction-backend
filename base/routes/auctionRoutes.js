@@ -1,8 +1,9 @@
 import express from "express";
 import Auction from "../models/auctionModel.js";
-import { io } from "../index.js";
-import { isAdmin, isAuth, isSeller } from "../utils.js";
-
+import { io } from "../../index.js";
+import isAdmin from "../utils/isAdmin.js";
+import isAuth from "../utils/isAuth.js";
+import isSeller from "../utils/isSeller.js";
 const auctionRouter = express.Router();
 
 // Create new auction

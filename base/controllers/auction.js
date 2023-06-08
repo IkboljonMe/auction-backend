@@ -1,4 +1,5 @@
 import Auction from "../models/auctionModel.js";
+import { io } from "../../index.js";
 export const createNewAuction = async (req, res) => {
   try {
     const { title, description, startingBid, imageUrl, endDate } = req.body;
@@ -13,9 +14,7 @@ export const createNewAuction = async (req, res) => {
     });
 
     const createdAuction = await newAuction.save();
-    res
-      .status(201)
-      .json({ createdAuction, message: "Auction Created Successfully" });
+    res.status(201).json({ createdAuction, message: "Auction Created Successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -54,9 +53,7 @@ export const placeBid = async (req, res) => {
     const { bidder, bidAmount } = req.body;
 
     if (bidAmount <= auction.currentBid) {
-      return res
-        .status(400)
-        .json({ message: "Bid amount must be greater than current bid" });
+      return res.status(400).json({ message: "Bid amount must be greater than current bid" });
     }
 
     if (auction.endDate === 0) {

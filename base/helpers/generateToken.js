@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 
+//It is a generateToken method that helps to keep auth privately in frontend side
+
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -10,7 +12,7 @@ const generateToken = (user) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "180d",
+      expiresIn: "30d",
     }
   );
 };

@@ -2,7 +2,6 @@ import express from "express";
 import { io } from "../../index.js";
 import isAdmin from "../middlewares/isAdmin.js";
 import isAuth from "../middlewares/isAuth.js";
-import isSeller from "../middlewares/isSeller.js";
 const auctionRouter = express.Router();
 import { createNewAuction, getAllAuctions, getSpecificAuction, placeBid, deleteAuctionById } from "../controllers/auction.js";
 

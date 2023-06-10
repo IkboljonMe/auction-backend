@@ -21,14 +21,6 @@ export const putChangeUserInfoById = expressAsyncHandler(async (req, res) => {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     user.isAdmin = Boolean(req.body.isAdmin);
-    user.isSeller = Boolean(req.body.isSeller);
-
-    // Check if the user is a seller before updating seller information
-    if (user.isSeller && user.seller) {
-      user.seller.name = req.body.sellerName || user.seller.name;
-      user.seller.logo = req.body.sellerLogo || user.seller.logo;
-      user.seller.description = req.body.sellerDescription || user.seller.description;
-    }
 
     const updatedUser = await user.save();
     res.send({ message: "User Updated Successfully", user: updatedUser });
@@ -58,8 +50,6 @@ export const signInUser = expressAsyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        isSeller: user.isSeller,
-        seller: user.seller,
         token: generateToken(user),
       });
       return;
@@ -87,7 +77,6 @@ export const signUpUser = expressAsyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
-    isSeller: user.isSeller,
     seller: user.seller,
     token: generateToken(user),
   });
@@ -100,11 +89,6 @@ export const putChangeUserProfile = expressAsyncHandler(async (req, res) => {
     if (req.body.password) {
       user.password = bcrypt.hashSync(req.body.password, 8);
     }
-    if (user.isSeller) {
-      user.seller.name = req.body.sellerName || user.seller.name;
-      user.seller.logo = req.body.sellerLogo || user.seller.logo;
-      user.seller.description = req.body.sellerDescription || user.seller.description;
-    }
 
     const updatedUser = await user.save();
     res.send({
@@ -112,7 +96,6 @@ export const putChangeUserProfile = expressAsyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
-      isSeller: updatedUser.isSeller,
       token: generateToken(updatedUser),
     });
   } else {
